@@ -183,6 +183,7 @@ public:
 	{
 		//http://www.xiaoxiaoge.cn/PlagueMap.json
 		httplib::Client cli("www.xiaoxiaoge.cn", 80);
+		stringstream buf;
 
 		auto res = cli.Get("/PlagueMap.json");
 
@@ -201,7 +202,13 @@ public:
 			string host = root["host"].asString();
 			string path = root["path"].asString();
 
-			return downImg(host, path);
+			buf << "[CQ:image,file=";
+			buf << downImg(host, path);
+			buf << "]" << endl;
+			buf << "数据来自: " << root["from"].asString() << endl;
+			buf << "更新时间: " << root["updataTime"].asString();
+
+			return buf.str();
 		}
 
 		return "";
@@ -211,6 +218,7 @@ public:
 	string getTrendMap()
 	{
 		string json = substring(html, "<script id=\"getStatisticsService\">try { window.getStatisticsService = ", "}catch(e){}");
+		stringstream buf;
 
 		Json::Value root;
 		Json::Reader reader;
@@ -221,7 +229,10 @@ public:
 		string host = substring(html, "https://", "/");
 		string path(url.substr(url.find(".com") + strlen(".com")));
 
-		return downImg(host, path);
+		buf << "[CQ:image,file=";
+		buf << downImg(host, path);
+		buf << "]";
+		return buf.str();
 	}
 
 	//获取新闻
@@ -454,24 +465,14 @@ void MsgFun(string msg, std::function<void(string)> send)
 		else if (msg == "疫情地图")
 		{
 			Plague a;
-			stringstream buf;
 
-			buf << "[CQ:image,file=";
-			buf << a.getMap();
-			buf << "]";
-
-			send(buf.str());
+			send(a.getMap());
 		}
 		else if (msg == "疫情趋势图")
 		{
 			Plague a;
-			stringstream buf;
-
-			buf << "[CQ:image,file=";
-			buf << a.getTrendMap();
-			buf << "]";
-
-			send(buf.str());
+	
+			send(a.getTrendMap());
 		}
 		else if (msg == "疫情新闻")
 		{
