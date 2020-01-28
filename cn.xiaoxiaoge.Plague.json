@@ -8,7 +8,7 @@
   "version": "1.0.0", // 应用版本
   "version_id": 1, // 应用顺序版本（每次发布时至少+1）
   "author": "小小哥", // 应用作者
-  "description": "疫情查询，指令:\r\n疫情查询，疫情地图，地区+疫情", //一句话描述插件用途
+  "description": "使用方法: 设置群号码或私聊QQ后，发送“菜单”到机器人或设置的群查看指令\r\n\r\n数据来自: 丁香园·丁香医生", //一句话描述插件用途
   "event": [
     // 事件列表，同一事件类型可重复定义（发布前请删除无用事件）
     {
@@ -56,7 +56,7 @@
     //30,  //接收语音			getRecord
     101, //发送群消息			sendGroupMsg
     //103, //发送讨论组消息		sendDiscussMsg
-    106, //发送私聊消息		sendPrivateMsg
+    106 //发送私聊消息		sendPrivateMsg
     //110, //发送赞				sendLike
     //120, //置群员移除			setGroupKick
     //121, //置群员禁言			setGroupBan

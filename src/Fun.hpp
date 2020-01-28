@@ -5,9 +5,17 @@
 #include <vector>
 #include <codecvt>
 
+
 #include <json/json.h>
 
 using namespace std;
+
+vector<long long> GroupList;
+vector<long long> QQList;
+bool isQQ = true;
+bool isGroup = true;
+
+string appPath;
 
 struct AREA
 {
@@ -35,7 +43,6 @@ bool AREAComp(const AREA& a, const AREA& b)
 {
 	return a.confirmedCount > b.confirmedCount;
 }
-
 
 class Plague
 {
@@ -284,8 +291,8 @@ public:
 		return str;
 	}
 
-	//获取城市疫情
-	string getCity(string name)
+	//获取某地区疫情
+	string getArea(string name)
 	{
 		stringstream buf;
 
@@ -306,7 +313,6 @@ public:
 
 				for (auto city : province["cities"])
 				{
-					//AREA cityData(city["cityName"].asString(), city["confirmedCount"].asInt(), city["deadCount"].asInt(), city["curedCount"].asInt());
 					buf << city["cityName"].asString();
 					buf << " 确诊" << city["confirmedCount"].asInt();
 					buf << " 死亡" << city["deadCount"].asInt();
@@ -327,11 +333,10 @@ public:
 			{
 				if (city["cityName"].asString() == name)
 				{
-					AREA cityData(name, city["confirmedCount"].asInt(), city["deadCount"].asInt(), city["curedCount"].asInt());
-					buf << cityData.name;
-					buf << " 确诊" << cityData.confirmedCount;
-					buf << " 死亡" << cityData.deadCount;
-					buf << " 治愈" << cityData.curedCount;
+					buf << province["provinceName"].asString() << "-" << city["cityName"].asString();
+					buf << " 确诊" << city["confirmedCount"].asInt();
+					buf << " 死亡" << city["deadCount"].asInt();
+					buf << " 治愈" << city["curedCount"].asInt();
 
 					return buf.str();
 				}
@@ -343,9 +348,9 @@ public:
 	}
 
 	//获取全部省份疫情
-	vector<AREA> getProvince()
+	string getProvince()
 	{
-		vector<AREA> temp;
+		vector<AREA> all;
 
 		for (auto province : root)
 		{
@@ -354,18 +359,30 @@ public:
 			int deadCount = province["deadCount"].asInt();
 			int curedCount = province["curedCount"].asInt();
 
-			temp.push_back(AREA(provinceName, confirmedCount, deadCount, curedCount));
+			all.push_back(AREA(provinceName, confirmedCount, deadCount, curedCount));
 		}
 
-		sort(temp.begin(), temp.end(), AREAComp);
+		sort(all.begin(), all.end(), AREAComp);
 
-		return temp;
+		stringstream buf;
+
+		for (auto temp : all)
+		{
+			buf << temp.name;
+			buf << " 确诊" << temp.confirmedCount;
+			buf << " 死亡" << temp.deadCount;
+			buf << " 治愈" << temp.curedCount;
+
+			buf << endl;
+		}
+
+		return buf.str();
 	}
 
-	//获取全部省份疫情
-	vector<AREA> getAbroad()
+	//获取国外疫情
+	string getAbroad()
 	{
-		vector<AREA> temp;
+		vector<AREA> all;
 
 		for (auto province : abroadRoot)
 		{
@@ -374,12 +391,25 @@ public:
 			int deadCount = province["deadCount"].asInt();
 			int curedCount = province["curedCount"].asInt();
 
-			temp.push_back(AREA(provinceName, confirmedCount, deadCount, curedCount));
+			all.push_back(AREA(provinceName, confirmedCount, deadCount, curedCount));
 		}
 
-		sort(temp.begin(), temp.end(), AREAComp);
+		sort(all.begin(), all.end(), AREAComp);
 
-		return temp;
+
+		stringstream buf;
+
+		for (auto temp : all)
+		{
+			buf << temp.name;
+			buf << " 确诊" << temp.confirmedCount;
+			buf << " 死亡" << temp.deadCount;
+			buf << " 治愈" << temp.curedCount;
+
+			buf << endl;
+		}
+
+		return buf.str();
 	}
 
 	////获取疫情重要内容
@@ -427,78 +457,53 @@ void MsgFun(string msg, std::function<void(string)> send)
 		else if (msg == "疫情查询" || msg == "全国疫情")
 		{
 			Plague a;
-			stringstream buf;
-			vector<AREA> all = a.getProvince();
-			//buf << a.getCountRemark() << endl << endl;
+			string Data = a.getProvince();
 
-			for (auto temp : all)
-			{
-				buf << temp.name;
-				buf << " 确诊" << temp.confirmedCount;
-				buf << " 死亡" << temp.deadCount;
-				buf << " 治愈" << temp.curedCount;
-
-				buf << endl;
-			}
-
-			send(buf.str());
+			send(Data);
 		}
 		else if (msg == "国外疫情")
 		{
 			Plague a;
-			stringstream buf;
-			vector<AREA> all = a.getAbroad();
-			//buf << a.getCountRemark() << endl << endl;
+			string Data = a.getAbroad();
 
-			for (auto temp : all)
-			{
-				buf << temp.name;
-				buf << " 确诊" << temp.confirmedCount;
-				buf << " 死亡" << temp.deadCount;
-				buf << " 治愈" << temp.curedCount;
-
-				buf << endl;
-			}
-
-			send(buf.str());
+			send(Data);
 		}
 		else if (msg == "疫情地图")
 		{
 			Plague a;
+			string Data = a.getMap();
 
-			send(a.getMap());
+			send(Data);
 		}
 		else if (msg == "疫情趋势图")
 		{
 			Plague a;
-	
-			send(a.getTrendMap());
+			string Data = a.getTrendMap();
+
+			send(Data);
 		}
 		else if (msg == "疫情新闻")
 		{
 			Plague a;
-			stringstream buf;
-			buf << a.getNews();
+			string Data = a.getNews();
 
-			send(buf.str());
+			send(Data);
 
 		}
 		else if (msg.length() != strlen("新闻") && msg.find("新闻") != msg.npos && msg.find("新闻") + strlen("新闻") == msg.size())
 		{
 			Plague a;
-			stringstream buf;
 			string provinceName(msg.substr(0, msg.find("新闻")));
+			string Data = a.getNewsProvince(provinceName);
 
-			buf << a.getNewsProvince(provinceName);
-
-			send(buf.str());
+			send(Data);
 
 		}
 		else if (msg.length() != strlen("疫情") && msg.find("疫情") != msg.npos && msg.find("疫情") + strlen("疫情") == msg.size())
 		{
 			Plague a;
 			string cityName(msg.substr(0, msg.find("疫情")));
-			auto Data = a.getCity(cityName);
+			string Data = a.getArea(cityName);
 
 			send(Data);
 		}
