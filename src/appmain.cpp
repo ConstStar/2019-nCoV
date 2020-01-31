@@ -109,6 +109,7 @@ EVE_GroupMsg(GroupMsg)
 
 	std::function<void(string)> send = [=](string msg)
 	{
+		msg = "[CQ:at,qq=" + to_string(fromQQ) + "]\n" + msg;
 		CQ::sendGroupMsg(fromGroup, msg);
 	};
 
