@@ -143,19 +143,26 @@ private:
 		{
 
 			html = UTF8ToANSI(res->body);
-			//string json = substring(buf, "window.getTimelineService =", "}catch(e){}");
-			string json = substring(html, "<script id=\"getAreaStat\">try { window.getAreaStat = ", "}catch(e){}");
 
+			//解析国内疫情信息
+			string json = substring(html, "<script id=\"getAreaStat\">try { window.getAreaStat = ", "}catch(e){}");
 			Json::Reader reader;
 			reader.parse(json, root);
 
+			//解析新闻信息
 			Json::Reader newReader;
 			string newJson = substring(html, "<script id=\"getTimelineService\">try { window.getTimelineService = ", "}catch(e){}");
 			newReader.parse(newJson, newsRoot);
 
+			//解析国外疫情信息
 			Json::Reader abroadReader;
 			string abroadJson = substring(html, "<script id=\"getListByCountryTypeService2\">try { window.getListByCountryTypeService2 = ", "}catch(e){}");
 			abroadReader.parse(abroadJson, abroadRoot);
+
+			//解析主要信息
+			Json::Reader mainReader;
+			string mainJson = substring(html, "<script id=\"getStatisticsService\">try { window.getStatisticsService = ", "}catch(e){}");
+			mainReader.parse(mainJson, mainRoot);
 
 			return true;
 		}
@@ -188,6 +195,8 @@ public:
 	//获取疫情地图
 	string getMap()
 	{
+
+		/*
 		//http://www.xiaoxiaoge.cn/PlagueMap.json
 		httplib::Client cli("www.xiaoxiaoge.cn", 80);
 		stringstream buf;
@@ -219,19 +228,28 @@ public:
 		}
 
 		return "";
+
+		*/
+
+		stringstream buf;
+		string url = mainRoot["imgUrl"].asString();
+
+		string host = substring(html, "https://", "/");
+		string path(url.substr(url.find(".com") + strlen(".com")));
+
+		buf << "[CQ:image,file=";
+		buf << downImg(host, path);
+		buf << "]";
+		return buf.str();
+
+
 	}
 
 	//获取疫情趋势图
 	string getTrendMap()
 	{
-		string json = substring(html, "<script id=\"getStatisticsService\">try { window.getStatisticsService = ", "}catch(e){}");
 		stringstream buf;
-
-		Json::Value root;
-		Json::Reader reader;
-		reader.parse(json, root);
-
-		string url = root["dailyPic"].asString();
+		string url = mainRoot["dailyPic"].asString();
 
 		string host = substring(html, "https://", "/");
 		string path(url.substr(url.find(".com") + strlen(".com")));
@@ -321,6 +339,11 @@ public:
 
 				}
 
+				if (!province["comment"].asString().empty())
+				{
+					buf << endl;
+					buf << province["comment"].asString() << endl;
+				}
 
 				return buf.str();
 			}
@@ -365,6 +388,15 @@ public:
 		sort(all.begin(), all.end(), AREAComp);
 
 		stringstream buf;
+
+		buf << getMap() << endl;
+
+		//buf << "全国疫情:" << endl;
+		buf << "确诊病例: " << mainRoot["confirmedCount"].asInt() << endl;
+		buf << "疑似病例: " << mainRoot["suspectedCount"].asInt() << endl;
+		buf << "死亡人数: " << mainRoot["deadCount"].asInt() << endl;
+		buf << "治愈人数: " << mainRoot["curedCount"].asInt() << endl << endl;
+
 
 		for (auto temp : all)
 		{
@@ -430,6 +462,7 @@ private:
 	Json::Value root;
 	Json::Value newsRoot;
 	Json::Value abroadRoot;
+	Json::Value mainRoot;
 };
 
 
