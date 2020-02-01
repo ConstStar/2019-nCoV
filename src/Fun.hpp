@@ -131,9 +131,9 @@ private:
 	//获取数据
 	bool getData(string& error)
 	{
-		httplib::Client cli("3g.dxy.cn", 80);
+		httplib::Client cli("ncov.dxy.cn", 80);
 
-		auto res = cli.Get("/newh5/view/pneumonia");
+		auto res = cli.Get("/ncovh5/view/pneumonia");
 
 		if (!res || res->status != 200)
 		{
@@ -466,6 +466,63 @@ private:
 };
 
 
+
+#define VERSION 3
+
+//检查更新
+string getUpdate()
+{
+	httplib::Client cli("www.xiaoxiaoge.cn", 80);
+
+	auto res = cli.Get("/PlagueUpdate.json");
+
+	if (!res || res->status != 200)
+	{
+		throw exception("获取更新数据失败 网络异常");
+	}
+	else
+	{
+		string json = res->body;
+
+		Json::Value root;
+		Json::Reader reader;
+		reader.parse(json, root);
+
+		int version = root["version"].asInt();
+		if (version > VERSION)
+		{
+			string host = root["host"].asString();
+			string path = root["path"].asString();
+
+			
+			httplib::Client client(host, 80);
+
+			auto ret = client.Get(path.c_str());
+			if (!ret || ret->status != 200)
+			{
+				throw exception("插件下载失败 网络异常");
+			}
+
+			string downPath("Plague" + path.substr(path.rfind("/") + 1));
+
+
+			ofstream file("app\\cn.xiaoxiaoge.Plague.cpk", ios::out | ios::binary);
+			file << ret->body;
+			file.close();
+
+			return "更新完成,请重启载入新版本";
+		}
+
+		return "暂无版本更新";
+	}
+
+	return "";
+
+
+}
+
+
+//统一消息处理函数
 void MsgFun(string msg, std::function<void(string)> send)
 {
 	try
@@ -483,6 +540,7 @@ void MsgFun(string msg, std::function<void(string)> send)
 			buf << "省份(如山东)+新闻" << endl;
 			buf << "省份(如山东)+疫情" << endl;
 			buf << "城市(如潍坊)+疫情" << endl;
+			buf << "检查更新" << endl;
 
 			buf << endl << "(数据来自 丁香园·丁香医生)";
 			send(buf.str());
@@ -522,6 +580,12 @@ void MsgFun(string msg, std::function<void(string)> send)
 
 			send(Data);
 
+		}
+		else if (msg == "检查更新")
+		{
+			string Data = getUpdate();
+
+			send(Data);
 		}
 		else if (msg.length() != strlen("新闻") && msg.find("新闻") != msg.npos && msg.find("新闻") + strlen("新闻") == msg.size())
 		{

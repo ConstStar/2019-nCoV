@@ -62,6 +62,22 @@ catch (...)
 EVE_Enable(Enable)
 {
 	appPath = CQ::getAppDirectory();
+
+	string update = getUpdate();
+	if (update.find("更新完成") != string::npos)
+	{
+		thread* tp = new thread(
+			[=] {
+				MessageBoxA(NULL, ("疫情查询 " + update).c_str(), "疫情查询", MB_OK);
+			}
+
+		);
+		tp->detach();
+
+		//logger.Error(update.c_str());
+		logger.InfoSend(update.c_str());
+	}
+
 	init();
 
 	logger.Info("应用被启用");
@@ -77,7 +93,7 @@ EVE_Disable(Disable)
 MUST_AppInfo_RETURN(CQAPPID)
 
 
-
+//私聊消息
 EVE_PrivateMsg(PrivateMsg)
 {
 	if (isQQ)
@@ -98,6 +114,7 @@ EVE_PrivateMsg(PrivateMsg)
 	return 0;
 }
 
+//群消息
 EVE_GroupMsg(GroupMsg)
 {
 	if (isGroup)
@@ -156,7 +173,7 @@ char* tr(const char* str)
 
 
 
-//分行
+//文本分行
 vector<string> text2vector(string text)
 {
 	vector<string> ret;
@@ -185,6 +202,7 @@ vector<string> text2vector(string text)
 }
 
 
+//GUI
 EVE_Menu(__menu)
 {
 
