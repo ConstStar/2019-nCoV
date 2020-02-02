@@ -15,5 +15,5 @@
 - 城市(如潍坊)+疫情
 
 ## 感谢
-- 感谢 丁香园·丁香医生(https://3g.dxy.cn/newh5/view/pneumonia) 提供数据
+- 感谢 丁香园·丁香医生(https://ncov.dxy.cn/ncovh5/view/pneumonia) 提供数据
   
