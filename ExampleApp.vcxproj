@@ -14,7 +14,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{73756EB3-0DE5-4CA9-B82A-548044D15401}</ProjectGuid>
     <RootNamespace>ExampleApp</RootNamespace>
-    <ProjectName>cn.xiaoxiaoge.Plague</ProjectName>
+    <ProjectName>cn.xiaoxiaoge.2019-nCoV</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -50,7 +50,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>D:\用户文档\桌面\桌面整理\酷Q\dev\cn.xiaoxiaoge.Plague</OutDir>
+    <OutDir>D:\用户文档\桌面\桌面整理\酷Q\dev\cn.xiaoxiaoge.2019-nCoV</OutDir>
     <TargetName>app</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -94,7 +94,7 @@
     <ClInclude Include="src\httplib.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cn.xiaoxiaoge.Plague.json" />
+    <None Include="cn.xiaoxiaoge.2019-nCoV.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

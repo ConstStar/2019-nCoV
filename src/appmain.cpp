@@ -63,6 +63,7 @@ EVE_Enable(Enable)
 {
 	appPath = CQ::getAppDirectory();
 
+
 	string update = getUpdate();
 	if (update.find("更新完成") != string::npos)
 	{

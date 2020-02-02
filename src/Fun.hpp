@@ -118,12 +118,12 @@ private:
 			throw exception("图片下载失败 网络异常");
 		}
 
-		string downPath("Plague" + path.substr(path.rfind("/") + 1));
-
+		string downPath("2019-nCoV_" + path.substr(path.rfind("/") + 1));
 
 		ofstream file("data\\image\\" + downPath, ios::out | ios::binary);
 		file << ret->body;
 		file.close();
+		deleteFile.push_back("data\\image\\" + downPath);
 
 		return downPath;
 	}
@@ -190,6 +190,16 @@ public:
 			}
 			Sleep(200);
 		}
+	}
+
+	~Plague()
+	{
+		for (auto temp : deleteFile)
+		{
+			remove(temp.c_str());
+		}
+
+
 	}
 
 	//获取疫情地图
@@ -463,6 +473,8 @@ private:
 	Json::Value newsRoot;
 	Json::Value abroadRoot;
 	Json::Value mainRoot;
+
+	vector<string> deleteFile;
 };
 
 
@@ -474,11 +486,11 @@ string getUpdate()
 {
 	httplib::Client cli("www.xiaoxiaoge.cn", 80);
 
-	auto res = cli.Get("/PlagueUpdate.json");
+	auto res = cli.Get("/2019-nCoV_Update.json");
 
 	if (!res || res->status != 200)
 	{
-		throw exception("获取更新数据失败 网络异常");
+		return "获取更新数据失败 网络异常";
 	}
 	else
 	{
@@ -503,10 +515,7 @@ string getUpdate()
 				throw exception("插件下载失败 网络异常");
 			}
 
-			string downPath("Plague" + path.substr(path.rfind("/") + 1));
-
-
-			ofstream file("app\\cn.xiaoxiaoge.Plague.cpk", ios::out | ios::binary);
+			ofstream file("app\\cn.xiaoxiaoge.2019-nCoV.cpk", ios::out | ios::binary);
 			file << ret->body;
 			file.close();
 
